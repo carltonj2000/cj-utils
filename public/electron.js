@@ -1,10 +1,21 @@
 const { app, BrowserWindow } = require("electron");
 const path = require("path");
+const os = require("os");
 const isDev = require("electron-is-dev");
+const WebSocket = require("ws");
+
+const wss = new WebSocket.Server({ port: 1040 });
 
 let win;
 
 function createWindow() {
+  BrowserWindow.addDevToolsExtension(
+    path.join(
+      os.homedir(),
+      "/Library/Application Support/Google/Chrome/Default/Extensions/fmkadmapgofadopljbjfkapdkoienihi/3.6.0_0"
+    )
+  );
+
   win = new BrowserWindow({
     width: 1200,
     height: 800,
@@ -21,6 +32,16 @@ function createWindow() {
 
   win.on("closed", () => {
     win = null;
+  });
+
+  wss.on("connection", function(w) {
+    w.on("message", function(data) {
+      console.log(data);
+    });
+    w.on("close", function() {
+      console.log("Closed");
+    });
+    w.send("Hello interface!");
   });
 }
 

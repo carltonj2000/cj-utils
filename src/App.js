@@ -5,12 +5,19 @@ import { Link } from "react-router-dom";
 import "./App.css";
 
 function App() {
+  React.useEffect(() => {
+    const socket = new WebSocket("ws://127.0.0.1:1040");
+    socket.onmessage = function(event) {
+      console.log("ws data", event.data);
+    };
+    socket.onopen = function() {
+      socket.send("Hello server!");
+    };
+  });
+
   return (
     <div className="App">
       <header className="App-header">
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
         <a
           className="App-link"
           href="https://reactjs.org"
