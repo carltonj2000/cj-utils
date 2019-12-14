@@ -29,6 +29,7 @@ switch (process.platform) {
     devToolExtPath = devToolExtPathWin;
     break;
   case "darwin":
+  default:
     devToolExtPath = devToolExtPathMac;
     break;
 }
