@@ -1,8 +1,24 @@
 # CJ Utils
 
-Uses Electron And React In November 2019.
+This utils contains the program with processing images form taken from a camera
+as follows.
+Verify the support programs called out in the
+[#Dependencies]
+section are installed.
+
+## Dependencies
+
+The following programs need to be installed for the image conversion program
+to work correclty.
+
+- https://imagemagick.org/
+  - expects the `convert` executable to be in `/usr/local/bin`.
+- https://www.libraw.org/
+  - expects the `simple_dcraw` executable to be in `/usr/local/bin`.
 
 ## History
+
+Uses Electron And React In November 2019.
 
 The code in this repository is based on the following videos.
 

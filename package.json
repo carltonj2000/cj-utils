@@ -26,7 +26,8 @@
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
     "react-router-dom": "5.1.2",
-    "react-scripts": "3.2.0"
+    "react-scripts": "3.2.0",
+    "ws": "^7.2.1"
   },
   "scripts": {
     "react:start": "react-scripts start",
@@ -55,10 +56,10 @@
     ]
   },
   "devDependencies": {
-    "concurrently": "5.0.0",
-    "electron": "7.1.1",
-    "electron-builder": "21.2.0",
+    "concurrently": "^5.0.2",
+    "electron": "^7.1.7",
+    "electron-builder": "^21.2.0",
     "wait-on": "3.3.0",
-    "ws": "7.2.1"
+    "ws": "^7.2.1"
   }
 }

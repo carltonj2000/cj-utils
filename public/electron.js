@@ -1,4 +1,4 @@
-const { app, BrowserWindow } = require("electron");
+const { app, BrowserWindow, Menu } = require("electron");
 const path = require("path");
 const os = require("os");
 const process = require("process");
@@ -16,11 +16,11 @@ const url = isDev
 
 const devToolExtPathMac = path.join(
   os.homedir(),
-  "/Library/Application Support/Google/Chrome/Default/Extensions/fmkadmapgofadopljbjfkapdkoienihi/3.6.0_0"
+  "/Library/Application Support/Google/Chrome/Default/Extensions/fmkadmapgofadopljbjfkapdkoienihi/4.2.1_0"
 );
 const devToolExtPathWin = path.join(
   os.homedir(),
-  "/AppData/Local/Google/Chrome/User Data/Default/Extensions/fmkadmapgofadopljbjfkapdkoienihi/3.6.0_0"
+  "/AppData/Local/Google/Chrome/User Data/Default/Extensions/fmkadmapgofadopljbjfkapdkoienihi/4.2.1_0"
 );
 let devToolExtPath;
 
@@ -34,8 +34,43 @@ switch (process.platform) {
     break;
 }
 
+const isMac = process.platform === "darwin";
+
+const template = [
+  // { role: 'appMenu' }
+  ...(isMac
+    ? [
+        {
+          label: app.name,
+          submenu: [{ role: "about" }, { role: "quit" }]
+        }
+      ]
+    : []),
+  {
+    label: "File",
+    submenu: [isMac ? { role: "close" } : { role: "quit" }]
+  },
+  {
+    role: "help",
+    submenu: [
+      {
+        label: "Learn More",
+        click: async () => {
+          const { shell } = require("electron");
+          await shell.openExternal("https://github.com/carltonj2000/cj-utils");
+        }
+      }
+    ]
+  }
+];
+
+const menu = Menu.buildFromTemplate(template);
+Menu.setApplicationMenu(menu);
+
 function createWindow() {
-  BrowserWindow.addDevToolsExtension(devToolExtPath);
+  if (isDev) {
+    BrowserWindow.addDevToolsExtension(devToolExtPath);
+  }
 
   win = new BrowserWindow({
     width: 1200,
