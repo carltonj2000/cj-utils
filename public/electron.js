@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Menu } = require("electron");
+const { app, BrowserWindow, Menu, screen } = require("electron");
 const path = require("path");
 const os = require("os");
 const process = require("process");
@@ -72,15 +72,29 @@ let wss = null;
 function createWindow() {
   if (isDev) BrowserWindow.addDevToolsExtension(devToolExtPath);
 
+  let winOpts = {};
+  if (isDev) {
+    const disps = screen.getAllDisplays();
+    let x;
+    const eDisp = disps.find(d => {
+      if (!x) return (x = d.bounds.x);
+      if (x > d.bounds.x) return (x = d.bounds.x);
+    });
+    console.log(eDisp);
+    winOpts.x = x;
+    winOpts.y = 0;
+  }
+
   win = new BrowserWindow({
-    width: isDev ? 1600 : 1200,
+    ...winOpts,
+    width: 1200,
     height: 800,
     webPreferences: {
       nodeIntegration: true
     }
   });
 
-  if (isDev) win.webContents.openDevTools();
+  if (isDev) setupDevTools(win);
 
   win.loadURL(url);
 
@@ -107,3 +121,18 @@ app.on("activate", () => {
     createWindow();
   }
 });
+
+function setupDevTools(mainWindow) {
+  devtools = new BrowserWindow();
+  mainWindow.webContents.setDevToolsWebContents(devtools.webContents);
+  mainWindow.webContents.openDevTools({ mode: "detach" });
+  mainWindow.webContents.once("did-finish-load", function() {
+    var windowBounds = mainWindow.getBounds();
+    devtools.setPosition(windowBounds.x + windowBounds.width, windowBounds.y);
+    devtools.setSize(windowBounds.width / 2, windowBounds.height);
+  });
+  mainWindow.on("move", function() {
+    var windowBounds = mainWindow.getBounds();
+    devtools.setPosition(windowBounds.x + windowBounds.width, windowBounds.y);
+  });
+}
