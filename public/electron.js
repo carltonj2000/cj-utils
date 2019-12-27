@@ -5,7 +5,7 @@ const process = require("process");
 const isDev = require("electron-is-dev");
 const WebSocket = require("ws");
 
-const wss = new WebSocket.Server({ port: 1040 });
+const Hm = require("./handleMessages");
 
 let win;
 
@@ -67,11 +67,9 @@ const template = [
 const menu = Menu.buildFromTemplate(template);
 Menu.setApplicationMenu(menu);
 
-function createWindow() {
-  if (isDev) {
-    BrowserWindow.addDevToolsExtension(devToolExtPath);
-  }
+let wss = null;
 
+function createWindow() {
   win = new BrowserWindow({
     width: 1200,
     height: 800,
@@ -80,18 +78,20 @@ function createWindow() {
     }
   });
 
+  if (isDev) {
+    BrowserWindow.addDevToolsExtension(devToolExtPath);
+    win.webContents.openDevTools();
+  }
+
   win.loadURL(url);
 
   win.on("closed", () => (win = null));
 
+  wss = new WebSocket.Server({ port: 1040 });
   wss.on("connection", function(w) {
-    w.on("message", function(data) {
-      console.log(data);
-    });
-    w.on("close", function() {
-      console.log("Closed");
-    });
-    w.send("Hello interface!");
+    w.on("message", Hm.handleMessage(w));
+    w.on("close", () => console.log("Closed"));
+    w.send(JSON.stringify({ cmd: "ping", id: 0, value: "Server Up." }));
   });
 }
 

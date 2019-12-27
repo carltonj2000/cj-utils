@@ -16,6 +16,18 @@ to work correclty.
 - https://www.libraw.org/
   - expects the `simple_dcraw` executable to be in `/usr/local/bin`.
 
+## Potential Issue And Errors
+
+- `tbd error seen` - the 1040 port is used by another application
+  or another instance of this program.
+  - solution is to stop the other program or instance
+
+## To Do
+
+- modify code for non-fix web socket port (presently fixed at 1040).
+  Use `net` as show
+  [here](https://stackoverflow.com/questions/19129570/how-can-i-check-if-port-is-busy-in-nodejs)
+
 ## History
 
 Uses Electron And React In November 2019.
