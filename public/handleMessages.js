@@ -1,5 +1,7 @@
-const handleMessage = w => dataIn => {
-  console.log(dataIn);
+const { dialog } = require("electron");
+
+const handleMessage = (win, w) => dataIn => {
+  // console.log(dataIn); // for debug
   const data = JSON.parse(dataIn);
   if (!data.cmd)
     return w.send(
@@ -7,11 +9,27 @@ const handleMessage = w => dataIn => {
     );
   const { cmd } = data;
   switch (data.cmd) {
+    case "pong":
+      console.log(data);
+      break;
     case "getDir":
-      console.log("getting dir");
+      dialog
+        .showOpenDialog(win, {
+          properties: ["openDirectory"]
+        })
+        .then(d =>
+          w.send(
+            JSON.stringify({
+              cmd: data.cmd + " resp",
+              id: data.id,
+              response: d
+            })
+          )
+        )
+        .catch(e => console.log("Dir access failed.", e));
       break;
     default:
-      console.log("Waring! Unknown command:", cmd);
+      console.log("Warning! Unknown command:", cmd);
   }
 };
 

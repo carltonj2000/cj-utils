@@ -5,7 +5,6 @@ import useWs from "./useWs";
 function Photos() {
   const [req] = useWs();
   const handleSelectDirectory = () => {
-    console.log("click handler working");
     req && req("getDir", dir => console.log(dir));
   };
   return (

@@ -70,18 +70,17 @@ Menu.setApplicationMenu(menu);
 let wss = null;
 
 function createWindow() {
+  if (isDev) BrowserWindow.addDevToolsExtension(devToolExtPath);
+
   win = new BrowserWindow({
-    width: 1200,
+    width: isDev ? 1600 : 1200,
     height: 800,
     webPreferences: {
       nodeIntegration: true
     }
   });
 
-  if (isDev) {
-    BrowserWindow.addDevToolsExtension(devToolExtPath);
-    win.webContents.openDevTools();
-  }
+  if (isDev) win.webContents.openDevTools();
 
   win.loadURL(url);
 
@@ -89,9 +88,9 @@ function createWindow() {
 
   wss = new WebSocket.Server({ port: 1040 });
   wss.on("connection", function(w) {
-    w.on("message", Hm.handleMessage(w));
+    w.on("message", Hm.handleMessage(win, w));
     w.on("close", () => console.log("Closed"));
-    w.send(JSON.stringify({ cmd: "ping", id: 0, value: "Server Up." }));
+    w.send(JSON.stringify({ cmd: "ping", id: 1, value: "Server Up." }));
   });
 }
 

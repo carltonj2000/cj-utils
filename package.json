@@ -39,7 +39,9 @@
     "electron:build:mac": "electron-builder --x64 --macos --c.extraMetadata.main=build/electron.js",
     "build": "yarn react:build && yarn electron:build",
     "build:mac": "yarn react:build && yarn electron:build:mac",
-    "start": "concurrently \"cross-env BROWSER=none yarn react:start\" \"wait-on http://localhost:3000 && electron .\""
+    "nodemn": "nodemon --watch ./public --exec \"electron . --debug\"",
+    "start": "concurrently \"cross-env BROWSER=none yarn react:start\" \"wait-on http://localhost:3000 && yarn nodemn\"",
+    "start:nonm": "concurrently \"cross-env BROWSER=none yarn react:start\" \"wait-on http://localhost:3000 && electron .\""
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -60,6 +62,7 @@
     "concurrently": "^5.0.2",
     "electron": "^7.1.7",
     "electron-builder": "^21.2.0",
+    "nodemon": "^2.0.2",
     "wait-on": "3.3.0",
     "ws": "^7.2.1"
   }
