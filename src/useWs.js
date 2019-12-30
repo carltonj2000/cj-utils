@@ -1,39 +1,61 @@
 import React from "react";
 import uuid from "uuid";
 
-let socket;
-
 export default () => {
   const [ws, wsSet] = React.useState(null);
-  const [reqs, reqsSet] = React.useState({ "1": "server up" });
+  const [wsEvent, wsEventSet] = React.useState(null);
+  const [reqs, reqsSet] = React.useState({
+    "1": { cmd: "ping", value: "server up" } // expected from server
+  });
 
   React.useEffect(() => {
-    if (socket) return;
-    socket = new WebSocket("ws://127.0.0.1:1040");
-    socket.onopen = function() {
+    const socket = new WebSocket("ws://127.0.0.1:1040");
+    wsSet(socket);
+    socket.onopen = () =>
       socket.send(
         JSON.stringify({ cmd: "pong", value: "Interface Up.", id: 2 })
       );
-      wsSet(socket);
-    };
-    socket.onmessage = function(event) {
-      // console.log("ws data", event.data); // for debug
-      const data = JSON.parse(event.data);
-      if (data.id === undefined)
-        return console.log("Warning! Message without ID.", data);
-      const req = reqs[data.id];
-      if (!req) return console.log("Warning! Unknown Message ID.", data.id);
-      console.log(data);
-      if (req.cb) req.cb(data);
-      delete reqs[data.id];
-    };
-  }, [reqs]);
+    socket.onmessage = wsEventSet;
+  }, []);
 
-  const req = (cmd, cb) => {
+  React.useEffect(() => {
+    if (!wsEvent) return;
+    const event = wsEvent;
+    wsEventSet(null);
+    const data = JSON.parse(event.data);
+    if (data.id === undefined)
+      return console.log("Warning! Message without ID." + data);
+
+    reqsSet(rqs => {
+      let filtered = {};
+      Object.keys(rqs).forEach(rqK => {
+        if (rqK !== data.id) filtered[rqK] = rqs[rqK];
+      });
+      return filtered;
+    });
+
+    const req = reqs[data.id];
+    if (data.cmd === "error") return req.reject && req.reject(data);
+    else req.resolve && req.resolve(data);
+  }, [reqs, wsEvent]);
+
+  const req = (cmd, args = []) => {
+    let res;
+    let rej;
+    const p = new Promise((resolve, reject) => {
+      res = resolve;
+      rej = reject;
+    });
     const id = uuid.v4();
-    reqsSet(r => (r[id] = { cmd, cb }));
-    if (!ws) return console.log("Warning. Websocket down.", cmd);
-    ws.send(JSON.stringify({ cmd, id }));
+    const startTime = new Date().getTime();
+    const req = { [id]: { cmd, reject: rej, resolve: res, startTime } };
+    reqsSet(r => ({ ...r, ...req }));
+    if (!ws) {
+      const msg = "Warning. Websocket down." + cmd;
+      console.log(msg);
+      rej(msg);
+    } else ws.send(JSON.stringify({ cmd, id, args }));
+    return p;
   };
   return [req];
 };

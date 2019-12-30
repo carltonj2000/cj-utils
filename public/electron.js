@@ -74,21 +74,19 @@ function createWindow() {
 
   let winOpts = {};
   if (isDev) {
-    const disps = screen.getAllDisplays();
     let x;
-    const eDisp = disps.find(d => {
+    screen.getAllDisplays().find(d => {
       if (!x) return (x = d.bounds.x);
       if (x > d.bounds.x) return (x = d.bounds.x);
     });
-    console.log(eDisp);
     winOpts.x = x;
     winOpts.y = 0;
   }
 
   win = new BrowserWindow({
     ...winOpts,
-    width: 1200,
-    height: 800,
+    width: 800,
+    height: 600,
     webPreferences: {
       nodeIntegration: true
     }
@@ -104,7 +102,7 @@ function createWindow() {
   wss.on("connection", function(w) {
     w.on("message", Hm.handleMessage(win, w));
     w.on("close", () => console.log("Closed"));
-    w.send(JSON.stringify({ cmd: "ping", id: 1, value: "Server Up." }));
+    w.send(JSON.stringify({ cmd: "ping", id: "1", value: "Server Up." }));
   });
 }
 
@@ -128,8 +126,8 @@ function setupDevTools(mainWindow) {
   mainWindow.webContents.openDevTools({ mode: "detach" });
   mainWindow.webContents.once("did-finish-load", function() {
     var windowBounds = mainWindow.getBounds();
-    devtools.setPosition(windowBounds.x + windowBounds.width, windowBounds.y);
-    devtools.setSize(windowBounds.width / 2, windowBounds.height);
+    devtools.setPosition(windowBounds.x, windowBounds.y + windowBounds.height);
+    devtools.setSize(windowBounds.width, windowBounds.height);
   });
   mainWindow.on("move", function() {
     var windowBounds = mainWindow.getBounds();
